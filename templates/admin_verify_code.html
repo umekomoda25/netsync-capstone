@@ -1,0 +1,46 @@
+{% extends "auth_base.html" %}
+{% block title %}Verify code · NetSync{% endblock %}
+{% block auth_content %}
+            <h1>Enter code</h1>
+            <p class="sub">We sent a 6-digit code to <strong>{{ masked }}</strong>. It expires in {{ ttl }} minutes.</p>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% for category, message in messages %}
+                <div class="alert {{ 'ok' if category == 'success' else '' }}" role="{{ 'status' if category == 'success' else 'alert' }}">{{ message }}</div>
+              {% endfor %}
+            {% endwith %}
+
+            <form method="POST" data-busy="Verifying">
+                <div class="field">
+                    <label for="code">Verification code</label>
+                    <div class="control">
+                        <input type="text" id="code" name="code" class="code-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required autofocus>
+                    </div>
+                </div>
+                <button type="submit" class="submit">Verify code</button>
+            </form>
+
+            <div class="link-row">
+                <form method="POST" action="{{ url_for('admin_resend_code') }}" style="margin:0">
+                    <button type="submit" class="linkbtn" id="resend" {% if cooldown %}disabled{% endif %}>Resend code{% if cooldown %} (<span id="secs">{{ cooldown }}</span>s){% endif %}</button>
+                </form>
+                <a href="{{ url_for('admin_forgot_password') }}">Use a different email</a>
+            </div>
+{% endblock %}
+{% block auth_scripts %}
+<script>
+    (function () {
+        var n = {{ cooldown|int }}, btn = document.getElementById('resend'), secs = document.getElementById('secs');
+        if (n > 0) {
+            var t = setInterval(function () {
+                n -= 1;
+                if (n <= 0) { clearInterval(t); btn.disabled = false; btn.textContent = 'Resend code'; }
+                else if (secs) secs.textContent = n;
+            }, 1000);
+        }
+        var code = document.getElementById('code');
+        code.addEventListener('input', function () { code.value = code.value.replace(/\D/g, '').slice(0, 6); });
+        var f = code.form;
+        f.addEventListener('submit', function () { var b = f.querySelector('.submit'); b.disabled = true; b.textContent = 'Verifying'; });
+    })();
+</script>
+{% endblock %}

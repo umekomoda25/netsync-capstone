@@ -1,0 +1,102 @@
+/* ==========================================================================
+   NetSync adaptive layer. Loaded LAST on every page (after each page's own <style> and modern.css),
+   so it only has to fix what the page styles get wrong on small / odd screens:
+   - phones from 320px up, tablets, laptops and big monitors
+   - phones using "Desktop site" (980-1300px wide layout on a touch screen)
+   - landscape / portrait photos in logs
+   ========================================================================== */
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+img, video, canvas { max-width: 100%; }
+.main, .container, .panel, .entry, .log-entry { min-width: 0; }
+
+/* ---------- Photos (any orientation) ----------
+   Photos keep their own shape: nothing is cropped, landscape and portrait both fit in a
+   neutral frame, and very tall photos are capped so they never take over the screen. */
+.log-thumb { width: min(100%, 460px); background: #05080b; }
+.log-thumb img {
+    aspect-ratio: auto; width: 100%; height: auto; min-height: 110px;
+    max-height: min(70vh, 520px); object-fit: contain; background: #05080b;
+}
+.log-thumb:hover img { transform: none; }
+.ws-shots .log-thumb { width: 100%; }
+.ws-shots .log-thumb img { aspect-ratio: 4 / 3; height: auto; max-height: none; }
+.log-thumb.is-broken { cursor: default; min-height: 120px; }
+.log-thumb.is-broken img { display: none; }
+.log-thumb.is-broken::after {
+    content: 'Photo unavailable'; display: grid; place-items: center; min-height: 120px; padding: 16px;
+    font-size: 14px; color: var(--muted, #9aabb9); text-align: center;
+}
+.log-thumb.is-broken .zoom-ic { display: none; }
+
+/* Project-details logs (the plain <img> inside .log-entry) */
+.log-entry img.log-photo {
+    display: block; width: auto; max-width: min(100%, 460px); height: auto; max-height: min(70vh, 480px);
+    object-fit: contain; background: #05080b; border-radius: 8px; cursor: zoom-in;
+}
+.log-entry img.log-photo.is-broken { display: none; }
+.log-note-broken { font-size: 14px; color: var(--muted, #9aabb9); }
+.lightbox img, #lightbox-img { object-fit: contain; max-width: 94vw; max-height: 86vh; }
+.photos-grid { grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)) !important; }
+.photo-card img { background: #05080b; }
+
+/* ---------- Timeline entries ---------- */
+.entry-head { flex-wrap: wrap; row-gap: 8px; }
+.entry-who { flex: 1 1 150px; min-width: 0; overflow-wrap: break-word; }
+.entry-head .entry-time { flex: 0 1 auto; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
+.log-meta { overflow-wrap: break-word; }
+.log-meta > * { min-width: 0; }
+
+/* ---------- Costing / item tables on phones: same table as before, just better spacing ----------
+   The old rule let item names break in the middle of a word ("Co mm sco pe"). Names now wrap only
+   between words, the name column keeps a sensible minimum width, and padding/text are a bit tighter. */
+td.name, .table-wrap td:first-child { overflow-wrap: break-word; word-break: normal; hyphens: manual; }
+@media (max-width: 560px) {
+    .table-wrap table { table-layout: auto; width: 100%; min-width: 0 !important; }
+    .table-wrap th, .table-wrap td { padding: 10px 3px !important; font-size: 11.5px !important; letter-spacing: -.15px; line-height: 1.35; }
+    .table-wrap th { white-space: normal; vertical-align: bottom; font-size: 11px !important; letter-spacing: -.1px; }
+    .table-wrap th:first-child, .table-wrap td:first-child { padding-left: 10px !important; min-width: 60px; }
+    .table-wrap th:last-child, .table-wrap td:last-child { padding-right: 10px !important; }
+    .table-wrap td:nth-child(n+3) { white-space: nowrap; }
+    .table-wrap td:nth-child(2) { white-space: normal; }
+    .table-wrap td.act { width: 34px; padding-left: 0 !important; padding-right: 6px !important; }
+    .table-wrap .btn-delete { width: 30px; height: 30px; }
+    .table-wrap .qty-desc { white-space: normal; }
+    .table-wrap .share { justify-content: flex-end; font-size: 11px; }
+    .table-wrap .total-row td { font-size: 13px !important; }
+}
+
+/* ---------- Very small phones (320-380px) ---------- */
+@media (max-width: 380px) {
+    .container { padding-left: 12px !important; padding-right: 12px !important; }
+    .panel { padding-left: 14px !important; padding-right: 14px !important; }
+    .entry { padding: 14px 12px !important; }
+    .entry-head { gap: 10px; }
+    .stats, .stats-row { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+    .page-title { font-size: 18px !important; }
+}
+
+/* ---------- Landscape phones: short screens ---------- */
+@media (max-height: 480px) and (orientation: landscape) {
+    .lightbox img, #lightbox-img { max-height: 66vh; }
+    .cam-box { padding: 12px 16px 14px; }
+    .cam-stage { max-height: 52vh; }
+}
+
+/* ---------- Touch screens (phones, tablets, "Desktop site" mode) ----------
+   adapt.js adds html.ns-touch on any device whose main pointer is a finger, whatever the browser says. */
+html.ns-touch { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+html.ns-touch .nav-link:hover { transform: none; }
+html.ns-touch .stat-card:hover, html.ns-touch .photo-card:hover { transform: none; }
+html.ns-touch button, html.ns-touch .btn, html.ns-touch .nav-link, html.ns-touch select { min-height: 40px; }
+html.ns-touch input[type="checkbox"], html.ns-touch input[type="radio"] { min-width: 20px; min-height: 20px; }
+
+/* Phone using "Desktop site": the page is laid out ~980px wide and then scaled down to the screen,
+   so everything looks tiny. Make the tap targets and the main reading text bigger and let the content
+   use the full width, so the page is usable without constant pinch-zoom. */
+html.ns-desktop-site .container { max-width: none !important; }
+html.ns-desktop-site .sidebar { width: 230px; }
+html.ns-desktop-site button, html.ns-desktop-site .btn, html.ns-desktop-site .nav-link { min-height: 48px; }
+html.ns-desktop-site .log-thumb { width: min(100%, 560px); }
+html.ns-desktop-site .log-entry img.log-photo { max-width: min(100%, 560px); }
+html.ns-desktop-site .hamburger-btn { display: inline-flex !important; }

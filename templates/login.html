@@ -1,0 +1,51 @@
+{% extends "auth_base.html" %}
+{% block auth_content %}
+            <h1>Sign in</h1>
+            <p class="sub">Use the account the admin set up for you.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% for category, message in messages %}
+                <div class="alert {{ 'ok' if category == 'success' else '' }}" role="{{ 'status' if category == 'success' else 'alert' }}">{{ message }}</div>
+              {% endfor %}
+            {% endwith %}
+
+            <form method="POST" id="login-form">
+                <div class="field">
+                    <label for="username">Username</label>
+                    <div class="control">
+                        <input type="text" id="username" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required autofocus>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="password">Password</label>
+                    <div class="control">
+                        <input type="password" id="password" name="password" class="has-toggle" autocomplete="current-password" required>
+                        <button type="button" class="toggle" id="toggle-pw" aria-controls="password" aria-pressed="false">Show</button>
+                    </div>
+                </div>
+                <button type="submit" class="submit" id="submit-btn">Sign in</button>
+            </form>
+
+            <div class="divider" aria-hidden="true">or</div>
+            <a class="btn-secondary" href="{{ url_for('admin_login') }}">Admin log in</a>
+
+            <p class="help">Forgot your password? Ask the admin to reset it.</p>
+{% endblock %}
+{% block auth_scripts %}
+<script>
+    (function () {
+        var pw = document.getElementById('password');
+        var tg = document.getElementById('toggle-pw');
+        tg.addEventListener('click', function () {
+            var show = pw.type === 'password';
+            pw.type = show ? 'text' : 'password';
+            tg.textContent = show ? 'Hide' : 'Show';
+            tg.setAttribute('aria-pressed', show ? 'true' : 'false');
+        });
+        document.getElementById('login-form').addEventListener('submit', function () {
+            var b = document.getElementById('submit-btn');
+            b.disabled = true; b.textContent = 'Signing in';
+        });
+    })();
+</script>
+{% endblock %}
