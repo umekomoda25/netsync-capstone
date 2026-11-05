@@ -24,8 +24,14 @@ app = Flask(__name__)
 
 # --- CONFIGURATION ---
 app.config['SECRET_KEY'] = 'netsync-2026-secure-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:LupinThe3rd!@localhost:5432/netsync_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'SQLALCHEMY_DATABASE_URI', 
+    'postgresql://postgres:LupinThe3rd@localhost:5432/netsync_db'
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "connect_args": {"sslmode": "require"}
+}
 
 # --- EMAIL (Gmail SMTP) - used to send the admin password-reset code ---
 # Set these as environment variables (use a Gmail *App Password*, not the normal Gmail password):
